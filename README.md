@@ -60,7 +60,3 @@ Contributions are welcome! Please submit a pull request or create an issue to pr
 
 ## License
 This project is licensed under the MIT License.
-
---- 
-
-Let me know if there’s anything more you’d like to add!
