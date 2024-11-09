@@ -3,11 +3,6 @@ import requests
 import wbgapi as wb
 import pandas as pd
 import plotly.express as px
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import base64
-import io
 
 def fetch_data(indicator):
     """Fetch data from World Bank API for a given indicator."""
