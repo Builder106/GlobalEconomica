@@ -120,18 +120,11 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
     csv_string = country_data.to_csv(index=False)
     return dict(content=csv_string, filename=f"{selected_country}_{selected_data_type}_data.csv")
 
-import plotly.io as pio
+import matplotlib.pyplot as plt
+import io
 
-# Set the Kaleido executable path
-pio.kaleido.scope.default_format = "png"
-pio.kaleido.scope.default_width = 800
-pio.kaleido.scope.default_height = 600
-pio.kaleido.scope.default_scale = 1
+# Remove the Kaleido configuration section and replace with the download_plot callback below
 
-# Set the path to the Kaleido executable
-pio.kaleido.scope.kaleido_path = os.path.expanduser("~/kaleido_files")
-
-# Define the callback to download the plot
 @app.callback(
     Output("download-plot", "data"),
     Input("download-plot-button", "n_clicks"),
@@ -161,11 +154,24 @@ def download_plot(n_clicks, selected_country, selected_data_type, selected_years
     if country_data.empty:
         return None
     
-    fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
-    
     try:
-        img_bytes = fig.to_image(format="png", engine="kaleido")
-        return dict(content=img_bytes, filename=f"{selected_country}_{selected_data_type}_plot.png")
+        # Create matplotlib figure
+        plt.figure(figsize=(10, 6))
+        plt.plot(country_data['Year'], country_data[y_label])
+        plt.title(f'{selected_data_type} Trends for {selected_country}')
+        plt.xlabel('Year')
+        plt.ylabel(y_label)
+        plt.grid(True)
+        
+        # Save to bytes
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=300, bbox_inches='tight')
+        buf.seek(0)
+        
+        # Cleanup
+        plt.close()
+        
+        return dict(content=buf.getvalue(), filename=f"{selected_country}_{selected_data_type}_plot.png")
     except Exception as e:
         print(f"Error generating image: {e}")
         return None
