@@ -3,6 +3,13 @@ import requests
 import wbgapi as wb
 import pandas as pd
 import plotly.express as px  # for interactive visualizations
+<<<<<<< HEAD
+=======
+import plotly.graph_objects as go
+import plotly.io as pio
+import io
+import base64
+>>>>>>> d45b7b6f8dbd4451c9694f8c4dacaa007721e487
 import os
 
 # Fetch GDP, Unemployment, and Inflation data from World Bank API
@@ -120,6 +127,7 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
     csv_string = country_data.to_csv(index=False)
     return dict(content=csv_string, filename=f"{selected_country}_{selected_data_type}_data.csv")
 
+<<<<<<< HEAD
 import plotly.io as pio
 
 # Set the Kaleido executable path
@@ -162,6 +170,7 @@ def download_plot(n_clicks, selected_country, selected_data_type, selected_years
         return None
     
     fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
+<<<<<<< HEAD
     
     try:
         img_bytes = fig.to_image(format="png", engine="kaleido")
@@ -169,6 +178,17 @@ def download_plot(n_clicks, selected_country, selected_data_type, selected_years
     except Exception as e:
         print(f"Error generating image: {e}")
         return None
+=======
+    img_path = f"{selected_country}_{selected_data_type}_plot.png"
+    fig.write_image(img_path, engine="orca")
+    
+    with open(img_path, "rb") as f:
+        img_bytes = f.read()
+    
+    os.remove(img_path)  # Clean up the file after reading
+    
+    return dict(content=img_bytes, filename=f"{selected_country}_{selected_data_type}_plot.png")
+>>>>>>> d45b7b6f8dbd4451c9694f8c4dacaa007721e487
 
 # Run the app
 if __name__ == '__main__':
