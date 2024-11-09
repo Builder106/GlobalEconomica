@@ -2,14 +2,15 @@ from dash import Dash, dcc, html, Input, Output, State
 import requests
 import wbgapi as wb
 import pandas as pd
-import plotly.express as px  # for interactive visualizations
+import plotly.express as px
 import matplotlib
-matplotlib.use('Agg')  # Set backend before importing pyplot
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import base64
 import io
 
-# Fetch GDP, Unemployment, and Inflation data from World Bank API
 def fetch_data(indicator):
+    """Fetch data from World Bank API for a given indicator."""
     try:
         data = wb.data.DataFrame(indicator, 'all')
         data.reset_index(inplace=True)
@@ -17,20 +18,16 @@ def fetch_data(indicator):
         data = data.melt(id_vars=['Country'], var_name='Year', value_name=indicator)
         data['Year'] = data['Year'].str.replace('YR', '').astype(int)
         return data
-    except wb.APIResponseError as e:
-        print(f"APIError: {e}")
-    except requests.exceptions.RequestException as e:
-        print(f"RequestException: {e}")
-    return pd.DataFrame()
+    except (wb.APIResponseError, requests.exceptions.RequestException) as e:
+        print(f"Error fetching data: {e}")
+        return pd.DataFrame()
 
 gdp_data = fetch_data('NY.GDP.MKTP.CD')
 unemployment_data = fetch_data('SL.UEM.TOTL.ZS')
 inflation_data = fetch_data('FP.CPI.TOTL')
 
-# Initialize the Dash app
 app = Dash(__name__)
 
-# Define the layout of the app
 app.layout = html.Div([
     html.H1("GlobalEconomica"),
     dcc.Dropdown(
@@ -58,11 +55,18 @@ app.layout = html.Div([
     dcc.Graph(id='data-plot'),
     html.Button("Download Data", id="download-data-button"),
     dcc.Download(id="download-data"),
-    html.Button("Download Plot", id="download-plot-button"),
-    dcc.Download(id="download-plot"),
 ])
 
-# Define the callback to update the graph
+def get_data_by_type(data_type):
+    """Return the appropriate dataset and label based on the selected data type."""
+    if data_type == 'GDP':
+        return gdp_data, 'NY.GDP.MKTP.CD'
+    elif data_type == 'Unemployment':
+        return unemployment_data, 'SL.UEM.TOTL.ZS'
+    elif data_type == 'Inflation':
+        return inflation_data, 'FP.CPI.TOTL'
+    return None, None
+
 @app.callback(
     Output('data-plot', 'figure'),
     [Input('country-selector', 'value'),
@@ -70,18 +74,12 @@ app.layout = html.Div([
      Input('year-range-slider', 'value')]
 )
 def update_graph(selected_country, selected_data_type, selected_years):
-    if selected_country is None or selected_data_type is None:
+    if not selected_country or not selected_data_type:
         return px.line(title="Select a country and data type to view trends")
     
-    if selected_data_type == 'GDP':
-        data = gdp_data
-        y_label = 'NY.GDP.MKTP.CD'
-    elif selected_data_type == 'Unemployment':
-        data = unemployment_data
-        y_label = 'SL.UEM.TOTL.ZS'
-    elif selected_data_type == 'Inflation':
-        data = inflation_data
-        y_label = 'FP.CPI.TOTL'
+    data, y_label = get_data_by_type(selected_data_type)
+    if data is None:
+        return px.line(title="Invalid data type selected")
     
     country_data = data[(data['Country'] == selected_country) & 
                         (data['Year'] >= selected_years[0]) & 
@@ -93,7 +91,6 @@ def update_graph(selected_country, selected_data_type, selected_years):
     fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
     return fig
 
-# Define the callback to download data
 @app.callback(
     Output("download-data", "data"),
     Input("download-data-button", "n_clicks"),
@@ -103,83 +100,21 @@ def update_graph(selected_country, selected_data_type, selected_years):
     prevent_initial_call=True
 )
 def download_data(n_clicks, selected_country, selected_data_type, selected_years):
-    if selected_country is None or selected_data_type is None:
+    if not selected_country or not selected_data_type:
         return None
     
-    if selected_data_type == 'GDP':
-        data = gdp_data
-        y_label = 'NY.GDP.MKTP.CD'
-    elif selected_data_type == 'Unemployment':
-        data = unemployment_data
-        y_label = 'SL.UEM.TOTL.ZS'
-    elif selected_data_type == 'Inflation':
-        data = inflation_data
-        y_label = 'FP.CPI.TOTL'
+    data, y_label = get_data_by_type(selected_data_type)
+    if data is None:
+        return None
     
     country_data = data[(data['Country'] == selected_country) & 
                         (data['Year'] >= selected_years[0]) & 
                         (data['Year'] <= selected_years[1])]
     
-    csv_string = country_data.to_csv(index=False)
-    return dict(content=csv_string, filename=f"{selected_country}_{selected_data_type}_data.csv")
-
-# Modify the download_plot callback:
-@app.callback(
-    Output("download-plot", "data"),
-    Input("download-plot-button", "n_clicks"),
-    State('country-selector', 'value'),
-    State('data-type-selector', 'value'),
-    State('year-range-slider', 'value'),
-    prevent_initial_call=True
-)
-def download_plot(n_clicks, selected_country, selected_data_type, selected_years):
-    if selected_country is None or selected_data_type is None:
+    if country_data.empty:
         return None
     
-    try:
-        # Get data
-        if selected_data_type == 'GDP':
-            data = gdp_data
-            y_label = 'NY.GDP.MKTP.CD'
-        elif selected_data_type == 'Unemployment':
-            data = unemployment_data
-            y_label = 'SL.UEM.TOTL.ZS'
-        elif selected_data_type == 'Inflation':
-            data = inflation_data
-            y_label = 'FP.CPI.TOTL'
-        
-        country_data = data[(data['Country'] == selected_country) & 
-                           (data['Year'] >= selected_years[0]) & 
-                           (data['Year'] <= selected_years[1])]
-        
-        if country_data.empty:
-            return None
-        
-        # Create plot using Agg backend
-        plt.switch_backend('Agg')
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(country_data['Year'], country_data[y_label])
-        ax.set_title(f'{selected_data_type} Trends for {selected_country}')
-        ax.set_xlabel('Year')
-        ax.set_ylabel(y_label)
-        ax.grid(True)
-        
-        # Save to bytes
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=300, bbox_inches='tight')
-        buf.seek(0)
-        plot_bytes = buf.getvalue()
-        
-        # Cleanup
-        plt.close('all')
-        buf.close()
-        
-        return dict(content=plot_bytes, filename=f"{selected_country}_{selected_data_type}_plot.png")
-    
-    except Exception as e:
-        print(f"Error in download_plot: {str(e)}")
-        return None
+    return dcc.send_data_frame(country_data.to_csv, f"{selected_country}_{selected_data_type}_data.csv")
 
-# Run the app
 if __name__ == '__main__':
     app.run_server(debug=True, dev_tools_props_check=False)
