@@ -3,7 +3,10 @@ import requests
 import wbgapi as wb
 import pandas as pd
 import plotly.express as px  # for interactive visualizations
-import os
+import matplotlib
+matplotlib.use('Agg')  # Set backend before importing pyplot
+import matplotlib.pyplot as plt
+import io
 
 # Fetch GDP, Unemployment, and Inflation data from World Bank API
 def fetch_data(indicator):
@@ -120,11 +123,7 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
     csv_string = country_data.to_csv(index=False)
     return dict(content=csv_string, filename=f"{selected_country}_{selected_data_type}_data.csv")
 
-import matplotlib.pyplot as plt
-import io
-
-# Remove the Kaleido configuration section and replace with the download_plot callback below
-
+# Modify the download_plot callback:
 @app.callback(
     Output("download-plot", "data"),
     Input("download-plot-button", "n_clicks"),
@@ -137,45 +136,50 @@ def download_plot(n_clicks, selected_country, selected_data_type, selected_years
     if selected_country is None or selected_data_type is None:
         return None
     
-    if selected_data_type == 'GDP':
-        data = gdp_data
-        y_label = 'NY.GDP.MKTP.CD'
-    elif selected_data_type == 'Unemployment':
-        data = unemployment_data
-        y_label = 'SL.UEM.TOTL.ZS'
-    elif selected_data_type == 'Inflation':
-        data = inflation_data
-        y_label = 'FP.CPI.TOTL'
-    
-    country_data = data[(data['Country'] == selected_country) & 
-                        (data['Year'] >= selected_years[0]) & 
-                        (data['Year'] <= selected_years[1])]
-    
-    if country_data.empty:
-        return None
-    
     try:
-        # Create matplotlib figure
-        plt.figure(figsize=(10, 6))
-        plt.plot(country_data['Year'], country_data[y_label])
-        plt.title(f'{selected_data_type} Trends for {selected_country}')
-        plt.xlabel('Year')
-        plt.ylabel(y_label)
-        plt.grid(True)
+        # Get data
+        if selected_data_type == 'GDP':
+            data = gdp_data
+            y_label = 'NY.GDP.MKTP.CD'
+        elif selected_data_type == 'Unemployment':
+            data = unemployment_data
+            y_label = 'SL.UEM.TOTL.ZS'
+        elif selected_data_type == 'Inflation':
+            data = inflation_data
+            y_label = 'FP.CPI.TOTL'
+        
+        country_data = data[(data['Country'] == selected_country) & 
+                           (data['Year'] >= selected_years[0]) & 
+                           (data['Year'] <= selected_years[1])]
+        
+        if country_data.empty:
+            return None
+        
+        # Create plot using Agg backend
+        plt.switch_backend('Agg')
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(country_data['Year'], country_data[y_label])
+        ax.set_title(f'{selected_data_type} Trends for {selected_country}')
+        ax.set_xlabel('Year')
+        ax.set_ylabel(y_label)
+        ax.grid(True)
         
         # Save to bytes
         buf = io.BytesIO()
         plt.savefig(buf, format='png', dpi=300, bbox_inches='tight')
         buf.seek(0)
+        plot_bytes = buf.getvalue()
         
         # Cleanup
-        plt.close()
+        plt.close('all')
+        buf.close()
         
-        return dict(content=buf.getvalue(), filename=f"{selected_country}_{selected_data_type}_plot.png")
+        return dict(content=plot_bytes, filename=f"{selected_country}_{selected_data_type}_plot.png")
+    
     except Exception as e:
-        print(f"Error generating image: {e}")
+        print(f"Error in download_plot: {str(e)}")
         return None
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, dev_tools_props_check=False)
