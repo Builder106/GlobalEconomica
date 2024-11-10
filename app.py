@@ -112,4 +112,4 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
     return dcc.send_data_frame(country_data.to_csv, f"{selected_country}_{selected_data_type}_data.csv")
 
 if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_props_check=False)
+    app.run_server(debug=True, host='0.0.0.0', port=8050)
