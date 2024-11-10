@@ -7,3 +7,4 @@ plotly==5.24.1
 pandas==2.2.3
 werkzeug==3.0.6
 markupsafe==3.0.2
+wbgapi==1.0.12
