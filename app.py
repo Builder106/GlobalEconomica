@@ -1,4 +1,5 @@
 from dash import Dash, dcc, html, Input, Output, State
+import dash_bootstrap_components as dbc
 import requests
 import wbgapi as wb
 import pandas as pd
@@ -24,32 +25,45 @@ inflation_data = fetch_data('FP.CPI.TOTL')
 app = Dash(__name__)
 
 app.layout = html.Div([
-    html.H1("GlobalEconomica"),
-    dcc.Dropdown(
-        id='country-selector',
-        options=[{'label': country, 'value': country} for country in gdp_data['Country'].unique()],
-        placeholder="Select a country"
-    ),
-    dcc.Dropdown(
-        id='data-type-selector',
-        options=[
-            {'label': 'GDP', 'value': 'GDP'},
-            {'label': 'Unemployment Rate', 'value': 'Unemployment'},
-            {'label': 'Inflation Rate', 'value': 'Inflation'}
-        ],
-        placeholder="Select data type"
-    ),
-    dcc.RangeSlider(
-        id='year-range-slider',
-        min=gdp_data['Year'].min(),
-        max=gdp_data['Year'].max(),
-        value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
-        marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
-        step=1
-    ),
-    dcc.Graph(id='data-plot'),
-    html.Button("Download Data", id="download-data-button"),
-    dcc.Download(id="download-data"),
+    html.Div(className="header", children=[
+        html.H1("GlobalEconomica")
+    ]),
+    html.Div(className="container", children=[
+        dbc.Card([
+            dbc.CardBody([
+                html.H4("Select Country and Data Type", className="card-title"),
+                dcc.Dropdown(
+                    id='country-selector',
+                    options=[{'label': country, 'value': country} for country in gdp_data['Country'].unique()],
+                    placeholder="Select a country"
+                ),
+                dcc.Dropdown(
+                    id='data-type-selector',
+                    options=[
+                        {'label': 'GDP', 'value': 'GDP'},
+                        {'label': 'Unemployment Rate', 'value': 'Unemployment'},
+                        {'label': 'Inflation Rate', 'value': 'Inflation'}
+                    ],
+                    placeholder="Select data type"
+                ),
+                dcc.RangeSlider(
+                    id='year-range-slider',
+                    min=gdp_data['Year'].min(),
+                    max=gdp_data['Year'].max(),
+                    value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
+                    marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
+                    step=1
+                ),
+                html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
+                dcc.Download(id="download-data")
+            ])
+        ]),
+        dbc.Card([
+            dbc.CardBody([
+                dcc.Graph(id='data-plot')
+            ])
+        ])
+    ])
 ])
 
 def get_data_by_type(data_type):
