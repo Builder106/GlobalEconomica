@@ -1,7 +1,6 @@
 # GlobalEconomica
 
-<img width="1440" alt="GlobalEconomica" src="https://github.com/user-attachments/assets/82a15a1e-c275-45b5-8912-1369c59d2d99">
-
+<img width="1440" alt="GlobalEconomica" src="https://github.com/user-attachments/assets/7fa2df8a-55bc-4ac7-a019-e841b907dd05">
 
 **GlobalEconomica** is an interactive dashboard that visualizes key economic indicators for countries worldwide. Powered by data from the World Bank API, GlobalEconomica allows users to track GDP, unemployment rates, and inflation rates over time, enabling a deeper understanding of global economic trends.
 
