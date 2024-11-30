@@ -35,7 +35,8 @@ app.layout = html.Div([
                 dcc.Dropdown(
                     id='country-selector',
                     options=[{'label': country, 'value': country} for country in gdp_data['Country'].unique()],
-                    placeholder="Select a country"
+                    placeholder="Select a country",
+                    searchable=True
                 ),
                 dcc.Dropdown(
                     id='data-type-selector',
