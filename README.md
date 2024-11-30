@@ -1,6 +1,5 @@
 # GlobalEconomica
 
-<!-- Optional: add a link to a screenshot image -->
 <img width="1440" alt="GlobalEconomica" src="https://github.com/user-attachments/assets/82a15a1e-c275-45b5-8912-1369c59d2d99">
 
 
