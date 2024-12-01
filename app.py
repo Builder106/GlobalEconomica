@@ -88,13 +88,13 @@ app.layout = html.Div([
 ])
 
 def get_data_by_type(data_type):
-    """Return the appropriate dataset and label based on the selected data type."""
+    """Return the appropriate dataset and column name based on the selected data type."""
     if data_type == 'GDP':
-        return gdp_data, 'GDP'
+        return gdp_data, 'NY.GDP.MKTP.CD'
     elif data_type == 'Unemployment':
-        return unemployment_data, 'Unemployment rate'
+        return unemployment_data, 'SL.UEM.TOTL.ZS'
     elif data_type == 'Inflation':
-        return inflation_data, 'Inflation rate'
+        return inflation_data, 'FP.CPI.TOTL'
     return None, None
 
 @app.callback(
@@ -104,29 +104,29 @@ def get_data_by_type(data_type):
      Input('year-range-slider', 'value')]
 )
 def update_graph(selected_country, selected_data_type, selected_years):
-   if not selected_country or not selected_data_type:
-      return px.line(title="Select a country and data type to view trends")
-   
-   data, y_label = get_data_by_type(selected_data_type)
-   if data is None:
-      return px.line(title="Invalid data type selected")
-   
-   country_data = data[(data['Country'] == selected_country) & 
-                  (data['Year'] >= selected_years[0]) & 
-                  (data['Year'] <= selected_years[1])]
-   
-   if country_data.empty:
-      return px.line(title=f"No data available for {selected_country}")
-   
-   if selected_data_type in ['Unemployment', 'Inflation']:
-      country_data[y_label] = country_data[y_label] / 100
+    if not selected_country or not selected_data_type:
+        return px.line(title="Select a country and data type to view trends")
+    
+    data, column_name = get_data_by_type(selected_data_type)
+    if data is None:
+        return px.line(title="Invalid data type selected")
+    
+    country_data = data[(data['Country'] == selected_country) & 
+                        (data['Year'] >= selected_years[0]) & 
+                        (data['Year'] <= selected_years[1])]
+    
+    if country_data.empty:
+        return px.line(title=f"No data available for {selected_country}")
+    
+    if selected_data_type in ['Unemployment', 'Inflation']:
+        country_data[column_name] = country_data[column_name] / 100
 
-   fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
-   
-   if selected_data_type in ['Unemployment', 'Inflation']:
-      fig.update_layout(yaxis_tickformat='.1%')
+    fig = px.line(country_data, x='Year', y=column_name, title=f'{selected_data_type} Trends for {selected_country}')
+    
+    if selected_data_type in ['Unemployment', 'Inflation']:
+        fig.update_layout(yaxis_tickformat='.1%')
 
-   return fig
+    return fig
 
 @app.callback(
     Output("download-data", "data"),
