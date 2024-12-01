@@ -90,11 +90,11 @@ app.layout = html.Div([
 def get_data_by_type(data_type):
     """Return the appropriate dataset and label based on the selected data type."""
     if data_type == 'GDP':
-        return gdp_data, 'NY.GDP.MKTP.CD'
+        return gdp_data, 'GDP'
     elif data_type == 'Unemployment':
-        return unemployment_data, 'SL.UEM.TOTL.ZS'
+        return unemployment_data, 'Unemployment rate'
     elif data_type == 'Inflation':
-        return inflation_data, 'FP.CPI.TOTL'
+        return inflation_data, 'Inflation rate'
     return None, None
 
 @app.callback(
