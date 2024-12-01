@@ -23,6 +23,7 @@ unemployment_data = fetch_data('SL.UEM.TOTL.ZS')
 inflation_data = fetch_data('FP.CPI.TOTL')
 
 app = Dash(__name__)
+app.title = "GlobalEconomica"
 
 app.layout = html.Div([
     html.Div(className="header", children=[
