@@ -100,6 +100,10 @@ def update_graph(selected_country, selected_data_type, selected_years):
         return px.line(title=f"No data available for {selected_country}")
     
     fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
+    
+    if selected_data_type == 'Unemployment':
+        fig.update_layout(yaxis_tickformat='%')
+    
     return fig
 
 @app.callback(
