@@ -103,7 +103,7 @@ def update_graph(selected_country, selected_data_type, selected_years):
    
    if selected_data_type in ['Unemployment', 'Inflation']:
       country_data[y_label] = country_data[y_label] / 100
-      fig.update_layout(yaxis_tickformat='%')
+      fig.update_layout(yaxis_tickformat='.1%')
    
    return fig
 
