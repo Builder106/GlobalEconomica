@@ -18,9 +18,28 @@ def fetch_data(indicator):
         print(f"Error fetching data: {e}")
         return pd.DataFrame()
 
+def fetch_regions():
+    """Fetch region data from World Bank API."""
+    try:
+        regions = wb.economy.DataFrame()
+        regions.reset_index(inplace=True)
+        regions = regions[['id', 'name', 'region']]
+        regions.rename(columns={'id': 'Country', 'name': 'Country Name', 'region': 'Region'}, inplace=True)
+        return regions
+    except (wb.APIResponseError, requests.exceptions.RequestException) as e:
+        print(f"Error fetching regions: {e}")
+        return pd.DataFrame()
+
 gdp_data = fetch_data('NY.GDP.MKTP.CD')
 unemployment_data = fetch_data('SL.UEM.TOTL.ZS')
 inflation_data = fetch_data('FP.CPI.TOTL')
+
+regions = fetch_regions()
+
+# Merge region data with country data
+gdp_data = gdp_data.merge(regions, on='Country', how='left')
+unemployment_data = unemployment_data.merge(regions, on='Country', how='left')
+inflation_data = inflation_data.merge(regions, on='Country', how='left')
 
 app = Dash(__name__)
 app.title = "GlobalEconomica"
@@ -35,8 +54,8 @@ app.layout = html.Div([
                 html.H4("Select Country and Data Type", className="card-title"),
                 dcc.Dropdown(
                     id='country-selector',
-                    options=[{'label': country, 'value': country} for country in gdp_data['Country'].unique()],
-                    placeholder="Select a country",
+                    options=[{'label': f"{row['Country Name']} ({row['Region']})", 'value': row['Country']} for _, row in regions.iterrows()],
+                    placeholder="Select a country or region",
                     searchable=True
                 ),
                 dcc.Dropdown(
