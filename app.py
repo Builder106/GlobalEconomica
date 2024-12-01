@@ -41,12 +41,14 @@ gdp_data = gdp_data.merge(regions, on='Country', how='left')
 unemployment_data = unemployment_data.merge(regions, on='Country', how='left')
 inflation_data = inflation_data.merge(regions, on='Country', how='left')
 
-app = Dash(__name__)
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "GlobalEconomica"
 
 app.layout = html.Div([
+    dcc.Store(id='theme-store', data='BOOTSTRAP'),
     html.Div(className="header", children=[
-        html.H1("GlobalEconomica")
+        html.H1("GlobalEconomica"),
+        dbc.Switch(id='theme-switch', label='Dark Mode', className='ml-auto')
     ]),
     html.Div(className="container", children=[
         dbc.Card([
@@ -152,6 +154,13 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
         return None
     
     return dcc.send_data_frame(country_data.to_csv, f"{selected_country}_{selected_data_type}_data.csv")
+
+@app.callback(
+    Output('theme-store', 'data'),
+    Input('theme-switch', 'value')
+)
+def toggle_theme(dark_mode):
+    return dbc.themes.DARKLY if dark_mode else dbc.themes.BOOTSTRAP
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=8050)
