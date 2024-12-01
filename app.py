@@ -105,8 +105,8 @@ def update_graph(selected_country, selected_data_type, selected_years):
    fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
    
    if selected_data_type in ['Unemployment', 'Inflation']:
-      fig.update_layout(yaxis_tickformat='.1%')
-        
+      fig.update_layout(yaxis_tickformat='%')
+
    return fig
 
 @app.callback(
