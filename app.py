@@ -99,11 +99,12 @@ def update_graph(selected_country, selected_data_type, selected_years):
    if country_data.empty:
       return px.line(title=f"No data available for {selected_country}")
    
-   fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
-   
    if selected_data_type in ['Unemployment', 'Inflation']:
       country_data[y_label] = country_data[y_label] / 100
       fig.update_layout(yaxis_tickformat='.1%')
+
+   fig = px.line(country_data, x='Year', y=y_label, title=f'{selected_data_type} Trends for {selected_country}')
+   
    
    return fig
 
