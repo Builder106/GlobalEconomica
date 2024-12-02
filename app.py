@@ -44,62 +44,65 @@ inflation_data = inflation_data.merge(regions, on='Country', how='left')
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.title = "GlobalEconomica"
 
-app.layout = html.Div([
-    dcc.Store(id='theme-store', data=dbc.themes.BOOTSTRAP),
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='theme-container', children=[
-        html.Div(className="header", children=[
-            html.H1("GlobalEconomica", style={'textAlign': 'center'}),
-            dbc.Row(
-                dbc.Col(
-                    html.Div([
-                        html.I(className="fa fa-sun", style={'margin-right': '10px'}),
-                        dbc.Switch(id='theme-switch', className='mt-2'),
-                        html.I(className="fa fa-moon", style={'margin-left': '10px'})
-                    ], style={'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
-                    width={"size": 2, "offset": 5}
+def serve_layout():
+    return html.Div([
+        dcc.Store(id='theme-store', data=dbc.themes.BOOTSTRAP),
+        dcc.Location(id='url', refresh=False),
+        html.Div(id='theme-container', children=[
+            html.Div(className="header", children=[
+                html.H1("GlobalEconomica", style={'textAlign': 'center'}),
+                dbc.Row(
+                    dbc.Col(
+                        html.Div([
+                            html.I(className="fa fa-sun", style={'margin-right': '10px'}),
+                            dbc.Switch(id='theme-switch', className='mt-2'),
+                            html.I(className="fa fa-moon", style={'margin-left': '10px'})
+                        ], style={'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+                        width={"size": 2, "offset": 5}
+                    )
                 )
-            )
-        ]),
-        html.Div(className="container", children=[
-            dbc.Card([
-                dbc.CardBody([
-                    html.H4("Select Country and Data Type", className="card-title"),
-                    dcc.Dropdown(
-                        id='country-selector',
-                        options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
-                        placeholder="Select a country or region",
-                        searchable=True
-                    ),
-                    dcc.Dropdown(
-                        id='data-type-selector',
-                        options=[
-                            {'label': 'GDP', 'value': 'GDP'},
-                            {'label': 'Unemployment Rate', 'value': 'Unemployment'},
-                            {'label': 'Inflation Rate', 'value': 'Inflation'}
-                        ],
-                        placeholder="Select data type"
-                    ),
-                    dcc.RangeSlider(
-                        id='year-range-slider',
-                        min=gdp_data['Year'].min(),
-                        max=gdp_data['Year'].max(),
-                        value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
-                        marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
-                        step=1
-                    ),
-                    html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
-                    dcc.Download(id="download-data")
-                ])
             ]),
-            dbc.Card([
-                dbc.CardBody([
-                    dcc.Graph(id='data-plot')
+            html.Div(className="container", children=[
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H4("Select Country and Data Type", className="card-title"),
+                        dcc.Dropdown(
+                            id='country-selector',
+                            options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
+                            placeholder="Select a country or region",
+                            searchable=True
+                        ),
+                        dcc.Dropdown(
+                            id='data-type-selector',
+                            options=[
+                                {'label': 'GDP', 'value': 'GDP'},
+                                {'label': 'Unemployment Rate', 'value': 'Unemployment'},
+                                {'label': 'Inflation Rate', 'value': 'Inflation'}
+                            ],
+                            placeholder="Select data type"
+                        ),
+                        dcc.RangeSlider(
+                            id='year-range-slider',
+                            min=gdp_data['Year'].min(),
+                            max=gdp_data['Year'].max(),
+                            value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
+                            marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
+                            step=1
+                        ),
+                        html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
+                        dcc.Download(id="download-data")
+                    ])
+                ]),
+                dbc.Card([
+                    dbc.CardBody([
+                        dcc.Graph(id='data-plot')
+                    ])
                 ])
             ])
         ])
     ])
-])
+
+app.layout = serve_layout
 
 def get_data_by_type(data_type):
     """Return the appropriate dataset and column name based on the selected data type."""
@@ -180,7 +183,7 @@ def toggle_theme(dark_mode):
 )
 def update_theme(theme):
     app.external_stylesheets = [theme, dbc.icons.FONT_AWESOME]
-    return app.layout['children']
+    return serve_layout()['children']
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=8050)
