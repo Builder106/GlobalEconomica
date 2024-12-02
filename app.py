@@ -59,45 +59,51 @@ def serve_layout():
                             dbc.Switch(id='theme-switch', className='mt-2', value=theme == dbc.themes.DARKLY),
                             html.I(className="fa fa-moon", style={'marginLeft': '10px'})
                         ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}),
-                        width={"size": 2, "offset": 5}
+                        width={"size": 6, "offset": 3, "order": 1}
                     )
                 )
             ]),
             html.Div(className="container", children=[
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4("Select Country and Data Type", className="card-title"),
-                        dcc.Dropdown(
-                            id='country-selector',
-                            options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
-                            placeholder="Select a country or region",
-                            searchable=True
-                        ),
-                        dcc.Dropdown(
-                            id='data-type-selector',
-                            options=[
-                                {'label': 'GDP', 'value': 'GDP'},
-                                {'label': 'Unemployment Rate', 'value': 'Unemployment'},
-                                {'label': 'Inflation Rate', 'value': 'Inflation'}
-                            ],
-                            placeholder="Select data type"
-                        ),
-                        dcc.RangeSlider(
-                            id='year-range-slider',
-                            min=gdp_data['Year'].min(),
-                            max=gdp_data['Year'].max(),
-                            value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
-                            marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
-                            step=1
-                        ),
-                        html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
-                        dcc.Download(id="download-data")
-                    ])
-                ]),
-                dbc.Card([
-                    dbc.CardBody([
-                        dcc.Graph(id='data-plot')
-                    ])
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardBody([
+                                html.H4("Select Country and Data Type", className="card-title"),
+                                dcc.Dropdown(
+                                    id='country-selector',
+                                    options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
+                                    placeholder="Select a country or region",
+                                    searchable=True
+                                ),
+                                dcc.Dropdown(
+                                    id='data-type-selector',
+                                    options=[
+                                        {'label': 'GDP', 'value': 'GDP'},
+                                        {'label': 'Unemployment Rate', 'value': 'Unemployment'},
+                                        {'label': 'Inflation Rate', 'value': 'Inflation'}
+                                    ],
+                                    placeholder="Select data type"
+                                ),
+                                dcc.RangeSlider(
+                                    id='year-range-slider',
+                                    min=gdp_data['Year'].min(),
+                                    max=gdp_data['Year'].max(),
+                                    value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
+                                    marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
+                                    step=1
+                                ),
+                                html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
+                                dcc.Download(id="download-data")
+                            ])
+                        ])
+                    ], width=12, lg=6),
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardBody([
+                                dcc.Graph(id='data-plot')
+                            ])
+                        ])
+                    ], width=12, lg=6)
                 ])
             ])
         ])
