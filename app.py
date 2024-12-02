@@ -55,10 +55,10 @@ def serve_layout():
                 dbc.Row(
                     dbc.Col(
                         html.Div([
-                            html.I(className="fa fa-sun", style={'marginRight': '10px'}),
+                            html.I(className="fa fa-sun", style={'margin-right': '10px'}),
                             dbc.Switch(id='theme-switch', className='mt-2', value=theme == dbc.themes.DARKLY),
-                            html.I(className="fa fa-moon", style={'marginLeft': '10px'})
-                        ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}),
+                            html.I(className="fa fa-moon", style={'margin-left': '10px'})
+                        ], style={'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
                         width={"size": 2, "offset": 5}
                     )
                 )
