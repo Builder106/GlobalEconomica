@@ -183,7 +183,7 @@ def toggle_theme(dark_mode):
 )
 def update_theme(theme):
     app.external_stylesheets = [theme, dbc.icons.FONT_AWESOME]
-    return serve_layout()['children']
+    return serve_layout().children
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=8050)
