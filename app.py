@@ -96,7 +96,7 @@ def serve_layout():
                                 dcc.Download(id="download-data")
                             ])
                         ]),
-                        width={"size": 6, "offset": 3}
+                        width={"size": 6, "offset": 3, "xs": 12}
                     )
                 ),
                 dbc.Row(
