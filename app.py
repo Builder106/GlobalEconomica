@@ -48,7 +48,7 @@ app.layout = html.Div([
     dcc.Store(id='theme-store', data='BOOTSTRAP'),
     html.Div(className="header", children=[
         html.H1("GlobalEconomica"),
-        dbc.Switch(id='theme-switch', label='Dark Mode', className='ml-auto')
+        dbc.Switch(id='theme-switch', className='ml-auto')
     ]),
     html.Div(className="container", children=[
         dbc.Card([
