@@ -178,6 +178,13 @@ def toggle_theme(dark_mode):
     return dbc.themes.DARKLY if dark_mode else dbc.themes.BOOTSTRAP
 
 @app.callback(
+    Output('theme-switch', 'value'),
+    Input('theme-store', 'data')
+)
+def update_switch(theme):
+    return theme == dbc.themes.DARKLY
+
+@app.callback(
     Output('theme-container', 'children'),
     Input('theme-store', 'data')
 )
