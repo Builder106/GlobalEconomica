@@ -45,9 +45,8 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_
 app.title = "GlobalEconomica"
 
 def serve_layout():
-    theme = dbc.themes.BOOTSTRAP
     return html.Div([
-        dcc.Store(id='theme-store', data=theme),
+        dcc.Store(id='theme-store', data=dbc.themes.BOOTSTRAP),
         dcc.Location(id='url', refresh=False),
         html.Div(id='theme-container', children=[
             html.Div(className="header", children=[
@@ -56,7 +55,7 @@ def serve_layout():
                     dbc.Col(
                         html.Div([
                             html.I(className="fa fa-sun", style={'margin-right': '10px'}),
-                            dbc.Switch(id='theme-switch', className='mt-2', value=theme == dbc.themes.DARKLY),
+                            dbc.Switch(id='theme-switch', className='mt-2'),
                             html.I(className="fa fa-moon", style={'margin-left': '10px'})
                         ], style={'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
                         width={"size": 2, "offset": 5}
@@ -177,6 +176,13 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
 )
 def toggle_theme(dark_mode):
     return dbc.themes.DARKLY if dark_mode else dbc.themes.BOOTSTRAP
+
+@app.callback(
+    Output('theme-switch', 'value'),
+    Input('theme-store', 'data')
+)
+def update_switch(theme):
+    return theme == dbc.themes.DARKLY
 
 @app.callback(
     Output('theme-container', 'children'),
