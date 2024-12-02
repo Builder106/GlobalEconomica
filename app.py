@@ -45,7 +45,8 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_
 app.title = "GlobalEconomica"
 
 app.layout = html.Div([
-    dcc.Store(id='theme-store', data='BOOTSTRAP'),
+    dcc.Store(id='theme-store', data=dbc.themes.BOOTSTRAP),
+    dcc.Location(id='url', refresh=False),
     html.Div(className="header", children=[
         html.H1("GlobalEconomica", style={'textAlign': 'center'}),
         dbc.Row(
@@ -65,7 +66,7 @@ app.layout = html.Div([
                 html.H4("Select Country and Data Type", className="card-title"),
                 dcc.Dropdown(
                     id='country-selector',
-                    options=[{'label': f"{row['Country Name']} ({row['Region']})", 'value': row['Country']} for _, row in regions.iterrows()],
+                    options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
                     placeholder="Select a country or region",
                     searchable=True
                 ),
@@ -170,6 +171,14 @@ def download_data(n_clicks, selected_country, selected_data_type, selected_years
 )
 def toggle_theme(dark_mode):
     return dbc.themes.DARKLY if dark_mode else dbc.themes.BOOTSTRAP
+
+@app.callback(
+    Output('url', 'href'),
+    Input('theme-store', 'data')
+)
+def update_stylesheet(theme):
+    app.external_stylesheets = [theme, dbc.icons.FONT_AWESOME]
+    return '/'
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=8050)
