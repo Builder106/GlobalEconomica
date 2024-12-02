@@ -41,14 +41,23 @@ gdp_data = gdp_data.merge(regions, on='Country', how='left')
 unemployment_data = unemployment_data.merge(regions, on='Country', how='left')
 inflation_data = inflation_data.merge(regions, on='Country', how='left')
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.title = "GlobalEconomica"
 
 app.layout = html.Div([
     dcc.Store(id='theme-store', data='BOOTSTRAP'),
     html.Div(className="header", children=[
-        html.H1("GlobalEconomica"),
-        dbc.Switch(id='theme-switch', className='ml-auto')
+        html.H1("GlobalEconomica", style={'textAlign': 'center'}),
+        dbc.Row(
+            dbc.Col(
+                html.Div([
+                    html.I(className="fa fa-sun", style={'margin-right': '10px'}),
+                    dbc.Switch(id='theme-switch', className='mt-2'),
+                    html.I(className="fa fa-moon", style={'margin-left': '10px'})
+                ], style={'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+                width={"size": 2, "offset": 5}
+            )
+        )
     ]),
     html.Div(className="container", children=[
         dbc.Card([
