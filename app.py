@@ -58,7 +58,7 @@ def serve_layout():
                             html.I(className="fa fa-sun", style={'marginRight': '10px'}),
                             dbc.Switch(id='theme-switch', className='mt-2', value=theme == dbc.themes.DARKLY),
                             html.I(className="fa fa-moon", style={'marginLeft': '10px'})
-                        ], style={'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+                        ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}),
                         width={"size": 2, "offset": 5}
                     )
                 )
