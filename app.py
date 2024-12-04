@@ -96,11 +96,15 @@ def serve_layout(theme=dbc.themes.BOOTSTRAP):
                                         className='d-none d-md-block'
                                     ),
                                     html.Div([
-                                        dbc.Row([
-                                            dbc.Col(dbc.Input(id='start-year-input', type='number', placeholder='Start Year', min=1960, max=current_year, step=1), width=6),
-                                            dbc.Col(dbc.Input(id='end-year-input', type='number', placeholder='End Year', min=1960, max=current_year, step=1), width=6)
-                                        ], className='mb-2'),
-                                        html.Div(id='year-input-error', style={'color': 'red'})
+                                       dbc.InputGroup([
+                                          dbc.InputGroupText("Start Year"),
+                                          dbc.Input(id='start-year-input', type='number', placeholder='Start Year', min=1960, max=current_year, step=1)
+                                       ], className='mb-2', style={'marginTop': '20px'}),
+                                       dbc.InputGroup([
+                                          dbc.InputGroupText("End Year"),
+                                          dbc.Input(id='end-year-input', type='number', placeholder='End Year', min=1960, max=current_year, step=1)
+                                       ], className='mb-2'),
+                                       html.Div(id='year-input-error', style={'color': 'red'})
                                     ], className='d-block d-md-none')
                                 ]),
                                 html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
@@ -115,9 +119,9 @@ def serve_layout(theme=dbc.themes.BOOTSTRAP):
                     dbc.Col(
                         dbc.Card([
                             dbc.CardBody([
-                                dcc.Graph(id='data-plot', style={'width': '100%'}, config={'responsive': True})
-                            ])
-                        ], className="mx-auto"),
+                                dcc.Graph(id='data-plot', className='data-plot', style={'width': '100%', 'overflow': 'hidden'}, config={'responsive': True})
+                            ], style={'padding': '15px'}),
+                        ], className="mx-auto", style={'overflow': 'hidden'}),
                         width={"size": 12}
                     ),
                     className="justify-content-center align-items-center"
@@ -148,7 +152,7 @@ def get_data_by_type(data_type):
 )
 def update_graph(selected_country, selected_data_type, selected_years, start_year, end_year):
     if not selected_country or not selected_data_type:
-        return px.line(title="Select a country and data type to view trends")
+        return px.line(title="<span class='mobile-title'>Select a country and data type to view trends</span>")
     
     data, column_name = get_data_by_type(selected_data_type)
     if data is None:
