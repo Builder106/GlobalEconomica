@@ -4,6 +4,7 @@ import requests
 import wbgapi as wb
 import pandas as pd
 import plotly.express as px
+import datetime
 
 def fetch_data(indicator):
     """Fetch data from World Bank API for a given indicator."""
@@ -45,74 +46,85 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_
 app.title = "GlobalEconomica"
 
 def serve_layout(theme=dbc.themes.BOOTSTRAP):
-   return html.Div([
-      dcc.Store(id='theme-store', data=theme),
-      dcc.Location(id='url', refresh=False),
-      html.Div(id='theme-container', children=[
-         html.Div(className="header", children=[
-            html.H1("GlobalEconomica", style={'textAlign': 'center'}),
-            dbc.Row(
-               dbc.Col(
-                  html.Div([
-                     html.I(className="fa fa-sun", style={'marginRight': '10px'}),
-                     dbc.Switch(id='theme-switch', className='mt-2', value=theme == dbc.themes.DARKLY),
-                     html.I(className="fa fa-moon", style={'marginLeft': '10px'})
-                  ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}),
-                  width={"size": 2, "offset": 5}
-               )
-            )
-         ]),
-         html.Div(className="container-fluid", children=[
-            dbc.Row(
-               dbc.Col(
-                  dbc.Card([
-                     dbc.CardBody([
-                        html.H4("Select Country and Data Type", className="card-title"),
-                        dcc.Dropdown(
-                           id='country-selector',
-                           options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
-                           placeholder="Select a country or region",
-                           searchable=True
-                        ),
-                        dcc.Dropdown(
-                           id='data-type-selector',
-                           options=[
-                              {'label': 'GDP', 'value': 'GDP'},
-                              {'label': 'Unemployment Rate', 'value': 'Unemployment'},
-                              {'label': 'Inflation Rate', 'value': 'Inflation'}
-                           ],
-                           placeholder="Select data type"
-                        ),
-                        dcc.RangeSlider(
-                           id='year-range-slider',
-                           min=gdp_data['Year'].min(),
-                           max=gdp_data['Year'].max(),
-                           value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
-                           marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
-                           step=1
-                        ),
-                        html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
-                        dcc.Download(id="download-data")
-                     ])
-                  ], className="mx-auto"),
-                  width={"size": 12}
-               ),
-               className="justify-content-center align-items-center"
-            ),
-            dbc.Row(
-               dbc.Col(
-                  dbc.Card([
-                     dbc.CardBody([
-                        dcc.Graph(id='data-plot', style={'width': '100%'},  config={'responsive': True})
-                     ])
-                  ], className="mx-auto"),
-                  width={"size": 12}
-               ),
-               className="justify-content-center align-items-center"
-            )
-         ])
-      ])
-   ])
+    current_year = datetime.datetime.now().year
+    return html.Div([
+        dcc.Store(id='theme-store', data=theme),
+        dcc.Location(id='url', refresh=False),
+        html.Div(id='theme-container', children=[
+            html.Div(className="header", children=[
+                html.H1("GlobalEconomica", style={'textAlign': 'center'}),
+                dbc.Row(
+                    dbc.Col(
+                        html.Div([
+                            html.I(className="fa fa-sun", style={'marginRight': '10px'}),
+                            dbc.Switch(id='theme-switch', className='mt-2', value=theme == dbc.themes.DARKLY),
+                            html.I(className="fa fa-moon", style={'marginLeft': '10px'})
+                        ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}),
+                        width={"size": 2, "offset": 5}
+                    )
+                )
+            ]),
+            html.Div(className="container-fluid", children=[
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Card([
+                            dbc.CardBody([
+                                html.H4("Select Country and Data Type", className="card-title"),
+                                dcc.Dropdown(
+                                    id='country-selector',
+                                    options=[{'label': f"{row['Country Name']}", 'value': row['Country']} for _, row in regions.iterrows()],
+                                    placeholder="Select a country or region",
+                                    searchable=True
+                                ),
+                                dcc.Dropdown(
+                                    id='data-type-selector',
+                                    options=[
+                                        {'label': 'GDP', 'value': 'GDP'},
+                                        {'label': 'Unemployment Rate', 'value': 'Unemployment'},
+                                        {'label': 'Inflation Rate', 'value': 'Inflation'}
+                                    ],
+                                    placeholder="Select data type"
+                                ),
+                                html.Div(id='year-input-container', children=[
+                                    dcc.RangeSlider(
+                                        id='year-range-slider',
+                                        min=gdp_data['Year'].min(),
+                                        max=gdp_data['Year'].max(),
+                                        value=[gdp_data['Year'].min(), gdp_data['Year'].max()],
+                                        marks={str(year): str(year) for year in range(gdp_data['Year'].min(), gdp_data['Year'].max() + 1, 5)},
+                                        step=1,
+                                        className='d-none d-md-block'
+                                    ),
+                                    html.Div([
+                                        dbc.Row([
+                                            dbc.Col(dbc.Input(id='start-year-input', type='number', placeholder='Start Year', min=1960, max=current_year, step=1), width=6),
+                                            dbc.Col(dbc.Input(id='end-year-input', type='number', placeholder='End Year', min=1960, max=current_year, step=1), width=6)
+                                        ], className='mb-2'),
+                                        html.Div(id='year-input-error', style={'color': 'red'})
+                                    ], className='d-block d-md-none')
+                                ]),
+                                html.Button("Download Data", id="download-data-button", className="btn btn-primary mt-3"),
+                                dcc.Download(id="download-data")
+                            ])
+                        ], className="mx-auto", style={'marginTop': '25px'}),
+                        width={"size": 12}
+                    ),
+                    className="justify-content-center align-items-center"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Card([
+                            dbc.CardBody([
+                                dcc.Graph(id='data-plot', style={'width': '100%'}, config={'responsive': True})
+                            ])
+                        ], className="mx-auto"),
+                        width={"size": 12}
+                    ),
+                    className="justify-content-center align-items-center"
+                )
+            ])
+        ])
+    ])
 
 app.layout = serve_layout
 
@@ -130,15 +142,20 @@ def get_data_by_type(data_type):
     Output('data-plot', 'figure'),
     [Input('country-selector', 'value'),
      Input('data-type-selector', 'value'),
-     Input('year-range-slider', 'value')]
+     Input('year-range-slider', 'value'),
+     Input('start-year-input', 'value'),
+     Input('end-year-input', 'value')]
 )
-def update_graph(selected_country, selected_data_type, selected_years):
+def update_graph(selected_country, selected_data_type, selected_years, start_year, end_year):
     if not selected_country or not selected_data_type:
         return px.line(title="Select a country and data type to view trends")
     
     data, column_name = get_data_by_type(selected_data_type)
     if data is None:
         return px.line(title="Invalid data type selected")
+    
+    if start_year and end_year:
+        selected_years = [start_year, end_year]
     
     country_data = data[(data['Country'] == selected_country) & 
                         (data['Year'] >= selected_years[0]) & 
@@ -158,20 +175,40 @@ def update_graph(selected_country, selected_data_type, selected_years):
     return fig
 
 @app.callback(
+    Output('year-input-error', 'children'),
+    [Input('start-year-input', 'value'),
+     Input('end-year-input', 'value')]
+)
+def validate_years(start_year, end_year):
+    current_year = datetime.datetime.now().year
+    if start_year and (start_year < 1960 or start_year > current_year):
+        return f"Start year must be between 1960 and {current_year}."
+    if end_year and (end_year < 1960 or end_year > current_year):
+        return f"End year must be between 1960 and {current_year}."
+    if start_year and end_year and start_year > end_year:
+        return "Start year must be less than or equal to end year."
+    return ""
+
+@app.callback(
     Output("download-data", "data"),
     Input("download-data-button", "n_clicks"),
     State('country-selector', 'value'),
     State('data-type-selector', 'value'),
     State('year-range-slider', 'value'),
+    State('start-year-input', 'value'),
+    State('end-year-input', 'value'),
     prevent_initial_call=True
 )
-def download_data(n_clicks, selected_country, selected_data_type, selected_years):
+def download_data(n_clicks, selected_country, selected_data_type, selected_years, start_year, end_year):
     if not selected_country or not selected_data_type:
         return None
     
     data, y_label = get_data_by_type(selected_data_type)
     if data is None:
         return None
+    
+    if start_year and end_year:
+        selected_years = [start_year, end_year]
     
     country_data = data[(data['Country'] == selected_country) & 
                         (data['Year'] >= selected_years[0]) & 
