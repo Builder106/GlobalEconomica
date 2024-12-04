@@ -99,7 +99,7 @@ def serve_layout(theme=dbc.themes.BOOTSTRAP):
                                        dbc.InputGroup([
                                           dbc.InputGroupText("Start Year"),
                                           dbc.Input(id='start-year-input', type='number', placeholder='Start Year', min=1960, max=current_year, step=1)
-                                       ], className='mb-2', style={'marginTop': '20px'}),
+                                       ], className='mb-2'),
                                        dbc.InputGroup([
                                           dbc.InputGroupText("End Year"),
                                           dbc.Input(id='end-year-input', type='number', placeholder='End Year', min=1960, max=current_year, step=1)
@@ -152,7 +152,7 @@ def get_data_by_type(data_type):
 )
 def update_graph(selected_country, selected_data_type, selected_years, start_year, end_year):
     if not selected_country or not selected_data_type:
-        return px.line(title="<span class='mobile-title'>Select a country and data type to view trends</span>")
+        return px.line(title="Select a country and data type to view trends")
     
     data, column_name = get_data_by_type(selected_data_type)
     if data is None:
