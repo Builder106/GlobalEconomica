@@ -18,11 +18,6 @@ body {
    margin-bottom: 20px;
 }
 
-.mobile-title {
-   white-space: normal;
-   word-wrap: break-word;
-}
-
 @media (max-width: 768px) {
    .mobile-title {
        display: block;
