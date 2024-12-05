@@ -119,7 +119,7 @@ def serve_layout(theme=dbc.themes.BOOTSTRAP):
                     dbc.Col(
                         dbc.Card([
                             dbc.CardBody([
-                                dcc.Graph(id='data-plot', style={'width': '100%', 'overflow': 'hidden'}, config={'responsive': True})
+                                 dcc.Graph(id='data-plot', style={'width': '100%', 'height': '500px', 'overflow': 'hidden'}, config={'responsive': True})
                             ], style={'padding': '15px'}),
                         ], className="mx-auto", style={'overflow': 'hidden'}),
                         width={"size": 12}
