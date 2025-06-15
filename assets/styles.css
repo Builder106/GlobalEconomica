@@ -1,0 +1,19 @@
+body {
+   font-family: Arial, sans-serif;
+   background-color: #f8f9fa;
+}
+
+.header {
+   text-align: center;
+   padding: 20px;
+   background-color: #007bff;
+   color: white;
+}
+
+.container {
+   margin: 20px;
+}
+
+.card {
+   margin-bottom: 20px;
+}
